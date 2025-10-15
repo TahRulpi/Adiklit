@@ -9,7 +9,7 @@ public class PantyDragController : MonoBehaviour, IDragHandler, IBeginDragHandle
     // Adjust this value in the Inspector based on your screen size (e.g., 300f for Canvas or 2.5f for World Space).
     public float xLimit = 300f;
 
-    // Reference to the GameManager for scoring and spawning logic.
+    // Reference to the GameManager for scoring and game state.
     public GameManager gameManager;
 
     private RectTransform rectTransform;
@@ -46,7 +46,7 @@ public class PantyDragController : MonoBehaviour, IDragHandler, IBeginDragHandle
         rectTransform.anchoredPosition = new Vector2(newPos.x, rectTransform.anchoredPosition.y);
     }
 
-    // --- Collision Logic (Moved from PlayerController) ---
+    // --- Collision Logic (Catching the Drop) ---
 
     // Note: Since this is likely a UI element, ensure it has a 2D Collider (Box Collider 2D) 
     // and a Rigidbody 2D set to 'Kinematic' for this to work with falling "BloodDrop" objects.
@@ -59,8 +59,11 @@ public class PantyDragController : MonoBehaviour, IDragHandler, IBeginDragHandle
             // Check if gameManager is assigned before calling its methods
             if (gameManager != null)
             {
+                // AddScore now checks for Game Over state internally
                 gameManager.AddScore();
-                gameManager.SpawnNextDrop();
+
+                // The SpawnNextDrop call was removed here. Spawning is now strictly 
+                // controlled by the InvokeRepeating in the GameManager's Start() method.
             }
             else
             {
