@@ -179,5 +179,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b8c6645a97403e4987b726c740e7f42, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  xLimit: 300
+  xLimit: 700
   gameManager: {fileID: 0}

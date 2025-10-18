@@ -4,31 +4,35 @@ using TMPro;
 public class GameManager : MonoBehaviour
 {
     [Header("Blood Drop Setup")]
-    // This is now an array. Drag ALL your blood drop prefabs here!
     public GameObject[] bloodDropPrefabs;
     public float maxSpawnX = 2.5f;     // how far left/right drops can spawn
     public float spawnInterval = 1.5f; // time between spawns
 
+    // NEW FIELD: Assign the Transform of the Panel where drops should appear!
+    [Header("Spawning Location")]
+    public Transform spawnParent;
+
     [Header("Game Over Setup")]
-    // Assign your Game Over Panel here in the Inspector!
     public GameObject gameOverPanel;
-    public int maxMisses = 5; // The maximum allowed misses before game over
+    public int maxMisses = 5;
 
     [Header("UI (optional)")]
     public TextMeshProUGUI scoreText;
-    public TextMeshProUGUI missesText; // Text to display the current miss count
+    public TextMeshProUGUI missesText;
 
     private float dropSpawnY;
     private int score = 0;
     private int missedCount = 0;
     private bool isGameOver = false;
 
+    // NEW: Index to track which prefab to spawn next
+    private int nextDropIndex = 0;
+
     void Awake()
     {
         // Calculate top of screen for drop spawning
         if (Camera.main != null && Camera.main.orthographic)
         {
-            // Spawns drops just off the top edge of the screen
             dropSpawnY = Camera.main.orthographicSize + 1f;
         }
         else
@@ -51,16 +55,13 @@ public class GameManager : MonoBehaviour
         UpdateMissesUI();
     }
 
-    /// <summary>
-    /// Called by a BloodDrop when it hits the "Ground" collider.
-    /// </summary>
+    // ... (HandleMiss, EndGame, AddScore, UpdateScoreUI, UpdateMissesUI methods remain unchanged) ...
+
     public void HandleMiss()
     {
         if (isGameOver) return;
-
         missedCount++;
         UpdateMissesUI();
-
         if (missedCount >= maxMisses)
         {
             EndGame();
@@ -70,16 +71,11 @@ public class GameManager : MonoBehaviour
     private void EndGame()
     {
         isGameOver = true;
-
-        // Stop the spawning of new drops
         CancelInvoke(nameof(SpawnNextDrop));
-
-        // Activate the Game Over panel
         if (gameOverPanel != null)
         {
             gameOverPanel.SetActive(true);
         }
-
         Debug.Log("Game Over! Missed too many drops.");
     }
 
@@ -103,31 +99,47 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Selects a random blood drop prefab and spawns it at a random X position.
+    /// Selects the next blood drop prefab sequentially and spawns it at a random X position.
     /// </summary>
     public void SpawnNextDrop()
     {
         if (isGameOver) return;
 
-        // CRITICAL CHECK: Ensure we have prefabs to spawn
         if (bloodDropPrefabs == null || bloodDropPrefabs.Length == 0)
         {
             Debug.LogError("Blood Drop Prefabs array is empty or not assigned! Cannot spawn drops.");
             return;
         }
 
-        // 1. Select a random index from the prefabs array
-        int randomIndex = Random.Range(0, bloodDropPrefabs.Length);
-        GameObject prefabToSpawn = bloodDropPrefabs[randomIndex];
+        // CRITICAL CHECK: Ensure the parent is assigned
+        if (spawnParent == null)
+        {
+            Debug.LogError("Spawn Parent is not assigned! Drops will spawn under the scene root.");
+        }
 
-        // 2. Determine random spawn position
+        // 1. Select the current prefab in the sequence
+        GameObject prefabToSpawn = bloodDropPrefabs[nextDropIndex];
+
+        // 2. Determine random spawn position (in World Space)
         float randomX = Random.Range(-maxSpawnX, maxSpawnX);
         Vector3 spawnPos = new Vector3(randomX, dropSpawnY, 0);
 
         // 3. Instantiate the selected prefab
         GameObject newDrop = Instantiate(prefabToSpawn, spawnPos, Quaternion.identity);
 
-        // 4. Pass the GameManager reference to the new drop object
+        // 4. Set the parent immediately after instantiation
+        if (spawnParent != null)
+        {
+            // The 'false' argument ensures the drop retains its world position (spawnPos)
+            newDrop.transform.SetParent(spawnParent, false);
+        }
+
+        // 5. Update the index for the next spawn
+        // This makes the sequence loop back to the first prefab after the last one
+        nextDropIndex = (nextDropIndex + 1) % bloodDropPrefabs.Length;
+
+
+        // 6. Pass the GameManager reference
         BloodDrop dropScript = newDrop.GetComponent<BloodDrop>();
         if (dropScript != null)
         {

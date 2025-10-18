@@ -181,3 +181,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   xLimit: 700
   gameManager: {fileID: 0}
+  pantyImage: {fileID: 3285232704941904905}
+  bloodAbsorbAmount: 0.045

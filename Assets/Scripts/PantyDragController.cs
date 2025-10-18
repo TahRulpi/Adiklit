@@ -1,74 +1,99 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI; // Needed for the Image component
 
-// IMPORTANT: This script requires the UI element (the panty) to have a RectTransform.
-// It also needs a 2D Collider (like Box Collider 2D) and a Rigidbody 2D to handle OnTriggerEnter2D.
+// This script should be on the parent GameObject of your cup/panty.
 public class PantyDragController : MonoBehaviour, IDragHandler, IBeginDragHandler
 {
     // The maximum horizontal distance the panty can move from the center (0).
-    // Adjust this value in the Inspector based on your screen size (e.g., 300f for Canvas or 2.5f for World Space).
     public float xLimit = 300f;
 
     // Reference to the GameManager for scoring and game state.
     public GameManager gameManager;
+
+    // --- FIELDS FOR BLOOD FILL VISUAL EFFECT ---
+    [Header("Blood Fill Visuals")]
+    // Assign the 'BloodFill' Image component here in the Inspector.
+    // This Image MUST have its 'Image Type' set to 'Filled' and 'Fill Method' to 'Vertical'.
+    public Image bloodFillImage;
+
+    // How much the fill amount increases per absorbed drop (e.g., 0.05f for 5% fill per drop).
+    [Range(0.01f, 0.2f)]
+    public float bloodAbsorbAmount = 0.05f;
+
+    // The maximum fill amount (usually 1.0 for completely full).
+    public float maxFillAmount = 1.0f;
+    // ------------------------------------
 
     private RectTransform rectTransform;
     private Vector2 dragStartPos;
 
     void Awake()
     {
-        // Get the RectTransform component if this is a UI element
         rectTransform = GetComponent<RectTransform>();
         if (rectTransform == null)
         {
-            Debug.LogError("PantyDragController requires a RectTransform component (for UI elements).");
+            Debug.LogError("PantyDragController requires a RectTransform component.");
+        }
+
+        // Ensure the fill is reset when the script starts
+        if (bloodFillImage != null)
+        {
+            bloodFillImage.fillAmount = 0f;
+        }
+        else
+        {
+            Debug.LogError("BloodFillImage not assigned! The filling effect will not work.");
         }
     }
 
-    // Called when a drag operation officially starts
     public void OnBeginDrag(PointerEventData eventData)
     {
-        // Store the current anchored position of the UI element
         dragStartPos = rectTransform.anchoredPosition;
     }
 
-    // Called every frame while dragging is active
     public void OnDrag(PointerEventData eventData)
     {
-        // Calculate the new X position based on the drag start position plus the X difference (delta) from the pointer
-        // We ignore the Y delta to only allow horizontal movement.
+        // Calculate new X position based on drag delta
         Vector2 newPos = dragStartPos + new Vector2(eventData.position.x - eventData.pressPosition.x, 0);
 
-        // Clamp the new X position to keep the panty within the defined limits
+        // Clamp the position within the limits
         newPos.x = Mathf.Clamp(newPos.x, -xLimit, xLimit);
 
-        // Apply the new position. We keep the original Y position.
+        // Apply the new position.
         rectTransform.anchoredPosition = new Vector2(newPos.x, rectTransform.anchoredPosition.y);
     }
 
     // --- Collision Logic (Catching the Drop) ---
-
-    // Note: Since this is likely a UI element, ensure it has a 2D Collider (Box Collider 2D) 
-    // and a Rigidbody 2D set to 'Kinematic' for this to work with falling "BloodDrop" objects.
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("BloodDrop"))
         {
             Destroy(collision.gameObject);
 
-            // Check if gameManager is assigned before calling its methods
             if (gameManager != null)
             {
-                // AddScore now checks for Game Over state internally
                 gameManager.AddScore();
 
-                // The SpawnNextDrop call was removed here. Spawning is now strictly 
-                // controlled by the InvokeRepeating in the GameManager's Start() method.
+                // --- CALL THE FILL METHOD ---
+                FillWithBlood();
             }
             else
             {
                 Debug.LogError("GameManager not assigned to PantyDragController!");
             }
         }
+    }
+
+    // --- METHOD TO FILL THE CUP ---
+    /// <summary>
+    /// Increases the fill amount of the bloodFillImage.
+    /// </summary>
+    private void FillWithBlood()
+    {
+        if (bloodFillImage == null) return;
+
+        // Increase the fill amount, clamping it at the maximum
+        bloodFillImage.fillAmount = Mathf.Min(bloodFillImage.fillAmount + bloodAbsorbAmount, maxFillAmount);
     }
 }
