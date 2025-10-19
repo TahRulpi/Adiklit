@@ -1,13 +1,10 @@
 fileFormatVersion: 2
-guid: cccc9b35b7bb2ee4590930e425729008
+guid: 8e90c789d5a251940ba7441a95f0b3d9
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -8787182328920660071
-    second: bloodmc_0
-  - first:
-      213: -1110282827570285828
-    second: bloodmc_1
+      213: -1198804939865047659
+    second: panties_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -129,13 +126,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: bloodmc_0
+      name: panties_0
       rect:
         serializedVersion: 2
-        x: 82
-        y: 115
-        width: 326
-        height: 349
+        x: 7
+        y: 83
+        width: 499
+        height: 346
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -144,30 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 99728147a38ad0680800000000000000
-      internalID: -8787182328920660071
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: bloodmc_1
-      rect:
-        serializedVersion: 2
-        x: 170
-        y: 13
-        width: 121
-        height: 23
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: cf2f47e96ab7790f0800000000000000
-      internalID: -1110282827570285828
+      spriteID: 59d3c5c324dfc5fe0800000000000000
+      internalID: -1198804939865047659
       vertices: []
       indices: 
       edges: []
@@ -186,8 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      bloodmc_0: -8787182328920660071
-      bloodmc_1: -1110282827570285828
+      panties_0: -1198804939865047659
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
